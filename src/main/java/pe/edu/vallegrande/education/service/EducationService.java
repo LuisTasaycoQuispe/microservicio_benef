@@ -2,7 +2,6 @@ package pe.edu.vallegrande.education.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 import pe.edu.vallegrande.education.model.Education;
 import pe.edu.vallegrande.education.repository.EducationRepository;
 import reactor.core.publisher.Flux;
@@ -13,8 +12,6 @@ public class EducationService {
 
     @Autowired
     private EducationRepository repository;
-
-    
 
     public Flux<Education> findAll() {
         return repository.findAll();
@@ -36,8 +33,6 @@ public class EducationService {
         return repository.existsById(id);
     }
 
-
-
     public Flux<Education> getByPersonId(Integer personId) {
         return repository.findByPersonId(personId)
                 .map(this::convertToDTO);
@@ -56,9 +51,6 @@ public class EducationService {
         return dto;
     }
 
-
-
-
     public Mono<Education> saveEducationHistory(Education education) {
         Education history = new Education();
         history.setDegreeStudy(education.getDegreeStudy());
@@ -72,11 +64,29 @@ public class EducationService {
         return repository.save(history);
     }
 
-    public Mono<Education> updateEducation(Integer id, Education education) {
+    public Mono<Education> updateEducationWithHistory(Integer id, Education education) {
         return repository.findById(id)
                 .flatMap(existingEducation -> {
                     return saveEducationHistory(existingEducation)
-                            .then(repository.save(education));  
+                            .then(updateExistingEducation(existingEducation, education));  
                 });
+    }
+
+    public Mono<Education> updateEducationWithoutHistory(Integer id, Education education) {
+        return repository.findById(id)
+                .flatMap(existingEducation -> {
+                    return updateExistingEducation(existingEducation, education);
+                });
+    }
+
+    private Mono<Education> updateExistingEducation(Education existingEducation, Education education) {
+        existingEducation.setDegreeStudy(education.getDegreeStudy());
+        existingEducation.setGradeBook(education.getGradeBook());
+        existingEducation.setGradeAverage(education.getGradeAverage());
+        existingEducation.setFullNotebook(education.getFullNotebook());
+        existingEducation.setAssistance(education.getAssistance());
+        existingEducation.setTutorials(education.getTutorials());
+
+        return repository.save(existingEducation);
     }
 }
