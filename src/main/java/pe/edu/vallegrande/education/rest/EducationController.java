@@ -38,14 +38,29 @@ public class EducationController {
         return service.save(education);
     }
 
-    @PutMapping("/update/{id}")
-    public Mono<ResponseEntity<Education>> update(@PathVariable Integer id, @RequestBody Education education) {
+    @PutMapping("/update-with-history/{id}")
+    public Mono<ResponseEntity<Education>> updateWithHistory(@PathVariable Integer id, @RequestBody Education education) {
         return service.existsById(id)
                 .flatMap(exists -> {
                     if (exists) {
                         education.setIdEducation(id);
 
-                        return service.updateEducation(id, education)
+                        return service.updateEducationWithHistory(id, education)
+                                .map(ResponseEntity::ok);
+                    } else {
+                        return Mono.just(ResponseEntity.notFound().build());
+                    }
+                });
+    }
+
+    @PutMapping("/update/{id}")
+    public Mono<ResponseEntity<Education>> updateWithoutHistory(@PathVariable Integer id, @RequestBody Education education) {
+        return service.existsById(id)
+                .flatMap(exists -> {
+                    if (exists) {
+                        education.setIdEducation(id);
+
+                        return service.updateEducationWithoutHistory(id, education)
                                 .map(ResponseEntity::ok);
                     } else {
                         return Mono.just(ResponseEntity.notFound().build());
