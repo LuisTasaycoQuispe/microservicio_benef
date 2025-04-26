@@ -3,7 +3,6 @@ package pe.edu.vallegrande.health.rest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
 import pe.edu.vallegrande.health.model.Health;
 import pe.edu.vallegrande.health.service.HealthService;
 import reactor.core.publisher.Flux;
@@ -23,7 +22,7 @@ public class HealthController {
     }
 
     @GetMapping("/person/{personId}")
-    public Flux<Health> getEducationByPersonId(@PathVariable Integer personId) {
+    public Flux<Health> getHealthByPersonId(@PathVariable Integer personId) {
         return service.getByPersonId(personId);
     }
 
@@ -39,14 +38,27 @@ public class HealthController {
         return service.save(health);
     }
 
-    @PutMapping("/update/{id}")
-    public Mono<ResponseEntity<Health>> update(@PathVariable Integer id, @RequestBody Health health) {
+    @PutMapping("/update-with-history/{id}")
+    public Mono<ResponseEntity<Health>> updateWithHistory(@PathVariable Integer id, @RequestBody Health health) {
         return service.existsById(id)
                 .flatMap(exists -> {
                     if (exists) {
                         health.setIdHealth(id);
+                        return service.updateHealthWithHistory(id, health)
+                                .map(ResponseEntity::ok);
+                    } else {
+                        return Mono.just(ResponseEntity.notFound().build());
+                    }
+                });
+    }
 
-                        return service.updateHealth(id, health)
+    @PutMapping("/update/{id}")
+    public Mono<ResponseEntity<Health>> updateWithoutHistory(@PathVariable Integer id, @RequestBody Health health) {
+        return service.existsById(id)
+                .flatMap(exists -> {
+                    if (exists) {
+                        health.setIdHealth(id);
+                        return service.updateHealthWithoutHistory(id, health)
                                 .map(ResponseEntity::ok);
                     } else {
                         return Mono.just(ResponseEntity.notFound().build());
@@ -66,5 +78,4 @@ public class HealthController {
                     }
                 });
     }
-    
 }

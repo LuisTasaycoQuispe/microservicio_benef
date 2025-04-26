@@ -2,12 +2,10 @@ package pe.edu.vallegrande.health.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 import pe.edu.vallegrande.health.model.Health;
 import pe.edu.vallegrande.health.repository.HealthRepository;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-
 
 @Service
 public class HealthService {
@@ -35,17 +33,13 @@ public class HealthService {
         return repository.existsById(id);
     }
 
-
-
     public Flux<Health> getByPersonId(Integer personId) {
         return repository.findByPersonId(personId)
                 .map(this::convertToDTO);
     }
 
-
     private Health convertToDTO(Health health) {
         Health dto = new Health();
-
         dto.setIdHealth(health.getIdHealth());
         dto.setVaccine(health.getVaccine());
         dto.setVph(health.getVph());
@@ -55,10 +49,6 @@ public class HealthService {
         dto.setPersonId(health.getPersonId());
         return dto;
     }
-    
-
-
-    
 
     public Mono<Health> saveHealthHistory(Health health) {
         Health history = new Health();
@@ -72,12 +62,28 @@ public class HealthService {
         return repository.save(history);
     }
 
-    public Mono<Health> updateHealth(Integer id, Health health) {
+    public Mono<Health> updateHealthWithHistory(Integer id, Health health) {
         return repository.findById(id)
                 .flatMap(existingHealth -> {
                     return saveHealthHistory(existingHealth)
-                            .then(repository.save(health));  
+                            .then(updateExistingHealth(existingHealth, health));  
                 });
     }
 
+    public Mono<Health> updateHealthWithoutHistory(Integer id, Health health) {
+        return repository.findById(id)
+                .flatMap(existingHealth -> {
+                    return updateExistingHealth(existingHealth, health);
+                });
+    }
+
+    private Mono<Health> updateExistingHealth(Health existingHealth, Health health) {
+        existingHealth.setVaccine(health.getVaccine());
+        existingHealth.setVph(health.getVph());
+        existingHealth.setInfluenza(health.getInfluenza());
+        existingHealth.setDeworming(health.getDeworming());
+        existingHealth.setHemoglobin(health.getHemoglobin());
+
+        return repository.save(existingHealth);
+    }
 }
