@@ -14,28 +14,53 @@ public class HealthService {
     private HealthRepository repository;
 
     public Flux<Health> findAll() {
-        return repository.findAll();
+        return repository.findAll()
+                .onErrorResume(e -> {
+                    System.err.println("Error al obtener todos los registros de salud: " + e.getMessage());
+                    return Flux.empty();
+                });
     }
 
     public Mono<Health> findById(Integer id) {
-        return repository.findById(id);
+        return repository.findById(id)
+                .switchIfEmpty(Mono.error(new RuntimeException("No se encontró salud con ID: " + id)))
+                .onErrorResume(e -> {
+                    System.err.println("Error al buscar salud por ID: " + e.getMessage());
+                    return Mono.empty();
+                });
     }
 
     public Mono<Health> save(Health health) {
-        return repository.save(health);
+        return repository.save(health)
+                .onErrorResume(e -> {
+                    System.err.println("Error al guardar salud: " + e.getMessage());
+                    return Mono.empty();
+                });
     }
 
     public Mono<Void> deleteById(Integer id) {
-        return repository.deleteById(id);
+        return repository.deleteById(id)
+                .onErrorResume(e -> {
+                    System.err.println("Error al eliminar salud por ID: " + e.getMessage());
+                    return Mono.empty();
+                });
     }
 
     public Mono<Boolean> existsById(Integer id) {
-        return repository.existsById(id);
+        return repository.existsById(id)
+                .onErrorResume(e -> {
+                    System.err.println("Error al verificar existencia por ID: " + e.getMessage());
+                    return Mono.just(false);
+                });
     }
 
     public Flux<Health> getByPersonId(Integer personId) {
         return repository.findByPersonId(personId)
-                .map(this::convertToDTO);
+                .map(this::convertToDTO)
+                .onErrorResume(e -> {
+                    System.err.println("Error al obtener salud por personId: " + e.getMessage());
+                    return Flux.empty();
+                });
     }
 
     private Health convertToDTO(Health health) {
@@ -59,22 +84,40 @@ public class HealthService {
         history.setHemoglobin(health.getHemoglobin());
         history.setPersonId(health.getPersonId());
 
-        return repository.save(history);
+        return repository.save(history)
+                .onErrorResume(e -> {
+                    System.err.println("Error al guardar historial de salud: " + e.getMessage());
+                    return Mono.empty();
+                });
     }
 
     public Mono<Health> updateHealthWithHistory(Integer id, Health health) {
         return repository.findById(id)
-                .flatMap(existingHealth -> {
-                    return saveHealthHistory(existingHealth)
-                            .then(updateExistingHealth(existingHealth, health));  
-                });
+                .switchIfEmpty(Mono.error(new RuntimeException("No se encontró el registro con ID: " + id)))
+                .flatMap(existingHealth ->
+                        saveHealthHistory(existingHealth)
+                                .onErrorResume(e -> {
+                                    System.err.println("Error al guardar historial de salud: " + e.getMessage());
+                                    return Mono.empty();
+                                })
+                                .then(updateExistingHealth(existingHealth, health))
+                                .onErrorResume(e -> {
+                                    System.err.println("Error al actualizar salud: " + e.getMessage());
+                                    return Mono.error(new RuntimeException("Fallo al actualizar salud"));
+                                })
+                );
     }
 
     public Mono<Health> updateHealthWithoutHistory(Integer id, Health health) {
         return repository.findById(id)
-                .flatMap(existingHealth -> {
-                    return updateExistingHealth(existingHealth, health);
-                });
+                .switchIfEmpty(Mono.error(new RuntimeException("No se encontró salud con ID: " + id)))
+                .flatMap(existingHealth ->
+                        updateExistingHealth(existingHealth, health)
+                                .onErrorResume(e -> {
+                                    System.err.println("Error al actualizar salud sin historial: " + e.getMessage());
+                                    return Mono.error(new RuntimeException("Fallo al actualizar sin historial"));
+                                })
+                );
     }
 
     private Mono<Health> updateExistingHealth(Health existingHealth, Health health) {
