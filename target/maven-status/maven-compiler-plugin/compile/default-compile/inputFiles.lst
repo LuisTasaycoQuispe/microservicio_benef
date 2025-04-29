@@ -1,0 +1,7 @@
+/workspaces/microservicio_benef/src/main/java/pe/edu/vallegrande/education/EducationApplication.java
+/workspaces/microservicio_benef/src/main/java/pe/edu/vallegrande/education/config/SwaggerConfig.java
+/workspaces/microservicio_benef/src/main/java/pe/edu/vallegrande/education/model/Education.java
+/workspaces/microservicio_benef/src/main/java/pe/edu/vallegrande/education/model/dto/EducationDTO.java
+/workspaces/microservicio_benef/src/main/java/pe/edu/vallegrande/education/repository/EducationRepository.java
+/workspaces/microservicio_benef/src/main/java/pe/edu/vallegrande/education/rest/EducationController.java
+/workspaces/microservicio_benef/src/main/java/pe/edu/vallegrande/education/service/EducationService.java
