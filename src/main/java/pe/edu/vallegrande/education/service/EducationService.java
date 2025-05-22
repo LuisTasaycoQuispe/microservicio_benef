@@ -60,6 +60,8 @@ public class EducationService {
         history.setGradeAverage(education.getGradeAverage());
         history.setFullNotebook(education.getFullNotebook());
         history.setAssistance(education.getAssistance());
+        history.setSchollName(education.getSchollName());
+        history.setEntryDate(education.getEntryDate());
         history.setTutorials(education.getTutorials());
         history.setPersonId(education.getPersonId());
 
@@ -87,6 +89,8 @@ public class EducationService {
         existingEducation.setGradeAverage(education.getGradeAverage());
         existingEducation.setFullNotebook(education.getFullNotebook());
         existingEducation.setAssistance(education.getAssistance());
+        existingEducation.setSchollName(education.getSchollName());
+        existingEducation.setEntryDate(education.getEntryDate());
         existingEducation.setTutorials(education.getTutorials());
 
         return repository.save(existingEducation);
