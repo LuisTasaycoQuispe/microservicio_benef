@@ -46,6 +46,8 @@ public class EducationService {
         dto.setGradeAverage(education.getGradeAverage());
         dto.setFullNotebook(education.getFullNotebook());
         dto.setAssistance(education.getAssistance());
+        dto.setSchollName(education.getSchollName());
+        dto.setEntryDate(education.getEntryDate());
         dto.setTutorials(education.getTutorials());
         dto.setPersonId(education.getPersonId());
         return dto;

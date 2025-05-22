@@ -31,6 +31,13 @@ public class Education {
     @Column("academic_tutorials")
     private String tutorials;
 
+
+    @Column("schoolName")
+    private String schollName;
+
+    @Column("entry_date")
+    private LocalDate entryDate;
+
     @Column("person_id_person")
     private Integer personId;
 }
