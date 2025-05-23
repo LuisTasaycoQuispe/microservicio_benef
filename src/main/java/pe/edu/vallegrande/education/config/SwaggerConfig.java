@@ -15,7 +15,7 @@ public class SwaggerConfig {
     public OpenAPI apiInfo() {
         return new OpenAPI()
                 .servers(Collections
-                        .singletonList(new Server().url("http://localhost:8080/")))
+                        .singletonList(new Server().url("https://glorious-happiness-97jqx7qrvjvghj97-8080.app.github.dev/")))
                 .info(new Info()
 
                         .title("TRADUCTOR")

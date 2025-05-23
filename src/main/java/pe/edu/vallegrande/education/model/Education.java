@@ -36,7 +36,7 @@ public class Education {
     private String tutorials;
 
 
-    @Column("schoolName")
+    @Column("school_name")
     private String schollName;
 
     @Column("entry_date")
